@@ -1,0 +1,58 @@
+openapi: 3.0.3
+info:
+  title: Movie Theater Seat Selection API
+  version: 1.0.0
+  description: >
+    Handles the "Select seats" step of buying movie tickets online. When a
+    customer selects seats, the theater places a temporary hold on them so no
+    one else can buy them while the customer pays. The hold expires after
+    10 minutes, or the customer can release it early.
+
+paths:
+  /seat-holds:
+    post:
+      summary: Hold the selected seats
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                showtimeId:
+                  type: string
+                seatIds:
+                  type: array
+                  items:
+                    type: string
+                customerId:
+                  type: string
+      responses:
+        '201':
+          description: Seats held. Returns the hold ID, held seats, and hold expiration time.
+        '409':
+          description: One or more selected seats are already taken.
+
+  /seat-holds/{holdId}:
+    parameters:
+      - name: holdId
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a seat hold
+      responses:
+        '200':
+          description: Returns the hold ID, held seats, and hold expiration time.
+        '404':
+          description: Hold not found.
+    delete:
+      summary: Release a seat hold
+      responses:
+        '204':
+          description: Hold released. The seats are available again.
+        '404':
+          description: Hold not found.
+        '410':
+          description: Hold already expired.
